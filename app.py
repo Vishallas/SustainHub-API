@@ -10,13 +10,10 @@ dotenv.load_dotenv() # loading environment variables
 mongodb = data_handle.database() # creating a database obj
 print("The database connected...")
 
-@app.route('/get',methods=['POST',])
+@app.route('/get',methods=['GET',])
 def find_something():
-    
-    food = request.json # converting the request json to dict
-
-    data = mongodb.getData(food['food_name'])
-    # print(data)
+    food_name = request.args['food_name']
+    data = mongodb.getData(food_name) 
     return dumps(data,indent = 2)
 
 @app.route('/put', methods=['POST',])
