@@ -3,8 +3,8 @@ from bson import ObjectId, Timestamp
 
 class database:
     def __init__(self):
-        engine = pymongo.MongoClient(os.environ.get('DB_URL'))
-        db = engine['test']
+        engine = pymongo.MongoClient(os.environ.get('ATLAS_URL'),)
+        db = engine['sus-hub']
 
         self.clients = db['clients']
         self.products = db['products']
@@ -19,9 +19,18 @@ class database:
                 {"expire": {"$gt": datetime.datetime.now()}}
             ]
         }
+
+        temp_query = {
+            "food_name": food_name
+        }
         
         # quering data
-        foods = list(self.products.find(query)) 
+        foods = list(self.products.find(temp_query)) 
+        # print(foods)
+        for food in foods:
+            food['_id'] = str(food['_id'])
+            food['expire'] = str(food['expire'])
+        # print(foods)
 
         return foods # returning data
 
@@ -50,5 +59,15 @@ class database:
         # Updating the product array
         result = self.clients.update_one(find_operation, update_operation)
         print(result.acknowledged)
+        return prod_insert.inserted_id
+    
+    def delData(self, prod_id,client_id):
+        prod_id = ObjectId(prod_id)
+        client_id = ObjectId(client_id)
+
+        self.products.delete_one({"_id":prod_id})
+        self.clients.update_one({"_id":client_id},{"$pull":{"product_ids":prod_id}})
         return True
+
+
 
