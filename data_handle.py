@@ -1,5 +1,5 @@
-import pymongo, os, json, datetime
-from bson import ObjectId
+import pymongo, os, datetime
+from bson import ObjectId, Timestamp
 
 class database:
     def __init__(self):
@@ -11,9 +11,17 @@ class database:
 
     # returns food data
     def getData(self,food_name):
-        # add query here
 
-        foods = list(self.products.find({"food_name":food_name})) # quering data
+        # add query here
+        query = {
+            "$and": [
+                {"food_name": food_name},
+                {"expire": {"$gt": datetime.datetime.now()}}
+            ]
+        }
+        
+        # quering data
+        foods = list(self.products.find(query)) 
 
         return foods # returning data
 
@@ -26,7 +34,7 @@ class database:
         prod = data['product'] # Getting food data
 
         # Adding creation data time 
-        prod['created_time'] = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        prod['expire'] = datetime.timedelta(hours=data['expire'])+datetime.datetime.now()
 
         # Inserting product
         prod_insert = self.products.insert_one(prod) # inserting food data

@@ -16,7 +16,7 @@ def find_something():
     food = request.json # converting the request json to dict
 
     data = mongodb.getData(food['food_name'])
-    print(data)
+    # print(data)
     return dumps(data,indent = 2)
 
 @app.route('/put', methods=['POST',])
