@@ -4,6 +4,8 @@ sudo yum update
 
 sudo yum install git -y
 
+cd ~
+
 git clone https://github.com/Vishallas/SustainHub-API.git
 
 cd SustainHub-API/

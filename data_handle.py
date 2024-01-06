@@ -9,33 +9,43 @@ class database:
         self.clients = db['clients']
         self.products = db['products']
 
-    # returns food data
+    # Searching food data
     def getData(self,food_name):
 
-        # add query here
+        # query for time 
         query = {
             "$and": [
-                {"food_name": food_name},
+                {"name": food_name},
                 {"expire": {"$gt": datetime.datetime.now()}}
             ]
         }
 
+        # query for search without time
         temp_query = {
-            "food_name": food_name
+            "$or":[
+                {
+                    "name": food_name
+                },
+                {
+                    "name":{
+                        "$regex":f"^{food_name}"
+                    }
+                }
+            ]
         }
         
         # quering data
-        foods = list(self.products.find(temp_query)) 
-        # print(foods)
+        res = self.products.find(temp_query)
+        foods = list(res)
+
+        # processing the object id and time for json
         for food in foods:
             food['_id'] = str(food['_id'])
             food['expire'] = str(food['expire'])
-        # print(foods)
-
+        
         return foods # returning data
 
-
-    # inserts food data
+    # Inserting food data
     def putData(self,data):
 
         # Data segregation
@@ -54,20 +64,22 @@ class database:
 
         # Operation queries
         find_operation = {"_id":client_id} # finding clients for updation
-        update_operation = {'$push': {"product_ids": prod_id}} # updating clients food ids
+        update_operation = {"$push": {"product_ids": prod_id}} # updating clients food ids
 
         # Updating the product array
         result = self.clients.update_one(find_operation, update_operation)
-        print(result.acknowledged)
+
         return prod_insert.inserted_id
     
+    # Deleting food data
     def delData(self, prod_id,client_id):
         prod_id = ObjectId(prod_id)
         client_id = ObjectId(client_id)
-
-        self.products.delete_one({"_id":prod_id})
-        self.clients.update_one({"_id":client_id},{"$pull":{"product_ids":prod_id}})
-        return True
-
-
-
+        try:
+            self.products.delete_one({"_id":prod_id})
+            self.clients.update_one({"_id":client_id},{"$pull":{"product_ids":prod_id}})
+            return True
+        except:
+            return False
+    
+    
