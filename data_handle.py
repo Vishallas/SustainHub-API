@@ -53,7 +53,7 @@ class database:
         prod = data['product'] # Getting food data
 
         # Adding creation data time 
-        prod['expire'] = datetime.timedelta(hours=data['expire'])+datetime.datetime.now()
+        # prod['expire'] = datetime.timedelta(hours=data['expire'])+datetime.datetime.now()
 
         # Inserting product
         prod_insert = self.products.insert_one(prod) # inserting food data
@@ -63,7 +63,7 @@ class database:
         client_id = ObjectId(client_id)
 
         # Operation queries
-        find_operation = {"_id":client_id} # finding clients for updation
+        find_operation = {"_id":client_id} # findxing clients for updation
         update_operation = {"$push": {"product_ids": prod_id}} # updating clients food ids
 
         # Updating the product array
