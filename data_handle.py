@@ -1,5 +1,5 @@
 import pymongo, os, datetime
-from bson import ObjectId, Timestamp
+from bson import ObjectId
 
 class database:
     def __init__(self):
