@@ -37,11 +37,12 @@ class database:
         # quering data
         res = self.products.find(temp_query)
         foods = list(res)
-
+        client = self.clients.find({'_id':ObjectId()})
         # processing the object id and time for json
         for food in foods:
             food['_id'] = str(food['_id'])
             food['expire'] = str(food['expire'])
+            food['user'] = self.clients.find_one({'_id':ObjectId(food['client_id'])})
         
         return foods # returning data
 
@@ -49,19 +50,16 @@ class database:
     def putData(self,data):
 
         # Data segregation
-        client_id = data['client_id'] # Getting client id
-        prod = data['product'] # Getting food data
-
-        # Adding creation data time 
-        # prod['expire'] = datetime.timedelta(hours=data['expire'])+datetime.datetime.now()
+        prod = data # Getting food data
+        
+        client_id = ObjectId(data['client_id'])
 
         # Inserting product
         prod_insert = self.products.insert_one(prod) # inserting food data
 
         # Converting to object id
         prod_id = ObjectId(prod_insert.inserted_id) 
-        client_id = ObjectId(client_id)
-
+        
         # Operation queries
         find_operation = {"_id":client_id} # findxing clients for updation
         update_operation = {"$push": {"product_ids": prod_id}} # updating clients food ids
@@ -81,5 +79,15 @@ class database:
             return True
         except:
             return False
-    
-    
+        
+    def getLatest(self):
+        res = self.products.find().sort([('expire', -1)])
+
+        foods = list(res)
+
+        # processing the object id and time for json
+        for food in foods:
+            food['_id'] = str(food['_id'])
+            food['expire'] = str(food['expire'])
+        
+        return foods # returning data

@@ -17,6 +17,10 @@ def find_something():
     data = mongodb.getData(food_name) 
     return dumps(data,indent = 2)
 
+@app.route('/feed',methods=['GET',])
+def get_latest():
+    return jsonify(mongodb.getLatest())
+
 
 @app.route('/put', methods=['POST',])
 def put_something():
